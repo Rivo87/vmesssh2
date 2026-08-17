@@ -683,8 +683,28 @@ const server = http.createServer(async (req, res) => {
         if (fs.existsSync(STATS_PATH)) { try { hwInfo = { ...hwInfo, ...JSON.parse(fs.readFileSync(STATS_PATH, 'utf8')) }; } catch (e) {} }
         
         let quickUrl = currentActiveDomain || "Menunggu Quick Tunnel...";
-        let ztSshDomains = getDomainsByPort(['8880', '8881']);
-        let ztVmessDomains = getDomainsByPort(['8001']);
+let ztSshDomains = getDomainsByPort(['8880', '8881']);
+let ztVmessDomains = getDomainsByPort(['8001']);
+
+if (ztVmessDomains.length === 0 && process.env.XRAY_DOMAIN) {
+    ztVmessDomains = [{
+        domain: process.env.XRAY_DOMAIN
+            .replace(/^https?:\/\//, '')
+            .replace(/\/$/, '')
+            .trim(),
+        port: '8001'
+    }];
+}
+
+if (ztSshDomains.length === 0 && process.env.SSH_DOMAIN) {
+    ztSshDomains = [{
+        domain: process.env.SSH_DOMAIN
+            .replace(/^https?:\/\//, '')
+            .replace(/\/$/, '')
+            .trim(),
+        port: '8880'
+    }];
+}
         let passConfigured = getAdminPassword() !== null;
         let netSettings = getNetworkSettings();
         let wsProxyCfg = getWsProxyConfig();
